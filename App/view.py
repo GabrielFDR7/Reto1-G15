@@ -37,8 +37,11 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
-
+    print("2- Listar cronológicamente información de los artistas")
+    print("3- Listar cronológicamente información del contenido adquirido")
+    print("4- Clasificar las orbas de un artista por técnica")
+    print("5- Transportar obras de un departamento")
+    print("0- Salir")
 catalog = None
 
 """
@@ -56,3 +59,6 @@ while True:
     else:
         sys.exit(0)
 sys.exit(0)
+    
+
+
