@@ -25,10 +25,20 @@
  """
 
 
+from decimal import Rounded
+from DISClib.DataStructures.arraylist import subList
 import config as cf
+import controller
+import time
+from datetime import date
 from DISClib.ADT import list as lt
-from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import insertionsort as ins
+from DISClib.Algorithms.Sorting import mergesort as mg
+from DISClib.Algorithms.Sorting import quicksort as qc
+from DISClib.Algorithms.Sorting import shellsort as sh
+from DISClib.ADT import stack as sdt
 assert cf
+import datetime
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -36,55 +46,88 @@ los mismos.
 """
 
 # Construccion de modelos
-def newCatalog():
+def newCatalog(tipo):
 
     catalog = {"artists":None, 
                "artworks": None,
                }
     
-    catalog["name"] = lt.newList()
+    catalog["artists"] = lt.newList(tipo)
 
-    catalog["arkworks"] = lt.newList("SINGLE_LINKED")
+    catalog["artworks"] = lt.newList(tipo)
 
     return catalog
 
-
 # Funciones para agregar informacion al catalogo
 def addArtist(catalog, artist):
-
+    # Se adiciona el artista a la lista de artistas
     lt.addLast(catalog["artists"], artist)
 
-    artworks = artist["artworks"].split(",")
+def addArtwork(catalog, artwork):
 
-    for artwork in artworks:
-        addArtwork(catalog, artwork.strip(), artist)
-
-def addArtwork(catalog, artistname, artwork):
-
-    artists = catalog["artists"]
-    posartist = lt.isPresent(artists, artistname)
-
-    if posartist>0:
-        artist = lt.getElement(artists, posartist)
-    else:
-        artist = newArtist(artistname)
-        lt.addLast(artists, artist) 
-    lt.addLast(artist["artworks"], artwork)
-
-
+    lt.addLast(catalog["artworks"], artwork)
 
 # Funciones para creacion de datos
-def newArtist(name):
 
-    artist = {"name": "", 
-              "artworks": None}
-    artist["name"] = name
-
-    artist["artworks"] = lt.newList("ARRAY_LIST")
-
-    return artist
 # Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+def compareBeginDate(artist1, artist2):
+    
+    return (int(artist1["BeginDate"])<int(artist2["BeginDate"]))
 
+
+def cmpArtWorkByDateAcquired(artwork1, artwork2):
+
+    
+    fecha1 = artwork1['DateAcquired']
+    fecha2 = artwork2['DateAcquired']
+
+    if fecha1 == "":
+        fecha1 = '1700-01-01'
+    if fecha2 == "": 
+        fecha2 = '1700-01-01'
+
+    dt1 = date.fromisoformat(fecha1)
+    dt2 = date.fromisoformat(fecha2)
+
+    return (dt1<dt2)
 # Funciones de ordenamiento
+
+##Ordena los artistas por el metodo quicksort
+def ordenarArtistas(lista):
+
+    return mg.sort(lista, compareBeginDate)
+
+def sortByDate(catalog, size, alg):
+
+    sub_list = lt.subList(catalog["artworks"], 1, size)
+    sub_list = sub_list.copy()
+    elapsedtime = 0
+
+    if alg == 1:
+        start_time = time.process_time()
+        sorted = ins.sort(sub_list, cmpArtWorkByDateAcquired)
+        stop_time = time.process_time()
+        elapsedtime += (stop_time - start_time)*1000
+    
+    elif alg == 2:
+        start_time = time.process_time()
+        sorted = mg.sort(sub_list, cmpArtWorkByDateAcquired)
+        stop_time = time.process_time()
+        elapsedtime += (stop_time - start_time)*1000
+
+    elif alg == 3:
+        start_time = time.process_time()
+        sorted = qc.sort(sub_list, cmpArtWorkByDateAcquired)
+        stop_time = time.process_time()
+        elapsedtime += (stop_time - start_time)*1000
+
+    elif alg == 4:        
+        start_time = time.process_time()
+        sorted = sh.sort(sub_list, cmpArtWorkByDateAcquired)
+        stop_time = time.process_time()
+        elapsedtime += (stop_time - start_time)*1000
+
+    return round(elapsedtime, 2), sorted
+
